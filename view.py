@@ -2,6 +2,7 @@
 import pickle
 import os, re, md5
 import errno
+import shutil
 from os.path import join
 from os.path import isdir, isfile, dirname, basename, normpath, splitext
 
@@ -26,6 +27,10 @@ try:
 except AttributeError:
     STORAGE_URL = os.path.join(settings.MEDIA_URL, STORAGE_ROOT)
 
+FULL_STORAGE_URL = join(settings.MEDIA_ROOT, STORAGE_ROOT)
+
+THUMBS_SUBDIR = '.thumbs'
+
 r = '\d{3}x\d{3}'
 THUMB_PATTERN = re.compile(r)
     
@@ -35,9 +40,9 @@ class Thumbs:
     def __init__(self, path):
         self.top = path
         if path:
-            self.dbfile = join(settings.MEDIA_ROOT, STORAGE_ROOT, path, '.thumbs', '.db')
+            self.dbfile = join(FULL_STORAGE_ROOT, path, THUMBS_SUBDIR, '.db')
         else:
-            self.dbfile = join(settings.MEDIA_ROOT, STORAGE_ROOT, '.thumbs', '.db')
+            self.dbfile = join(FULL_STORAGE_ROOT, THUMBS_SUBDIR, '.db')
 
     def load(self):
         files = {}
@@ -81,7 +86,7 @@ def show_dir(request, path):
 def new_folder(request, path, name):
     error = ''
     try:
-        os.mkdir(join(settings.MEDIA_ROOT, STORAGE_ROOT,path,name))
+        os.mkdir(join(FULL_STORAGE_ROOT, path, name))
     except Exception, e:
         error = e
     tree = dir_structure('images', '', join(path, name)).replace('\n', '')
@@ -91,18 +96,13 @@ def new_folder(request, path, name):
 
 @staff_member_required
 def del_folder(request, path):
-    rmdir_r(join(settings.MEDIA_ROOT, STORAGE_ROOT, path))
+    rmdir_r(join(FULL_STORAGE_ROOT, path))
     return HttpResponse("{ok:''}");
 
 def rmdir_r(top):
-    for dir, children in walktree(top):
-        for child in children:
-            path = join(dir, child)
-            if os.path.isfile(path): os.remove(path)
-            elif os.path.isdir(path): os.rmdir(path)
-        os.rmdir(dir)
+    shutil.rmtree(top, ignore_errors=True)
 
-def walktree(top = ".", depthfirst = True):
+def walktree(top=".", depthfirst=True):
     import stat, types
     names = os.listdir(top)
     if not depthfirst:
@@ -113,7 +113,7 @@ def walktree(top = ".", depthfirst = True):
         except os.error:
             continue
         if stat.S_ISDIR(st.st_mode):
-            for (newtop, children) in walktree (os.path.join(top, name), depthfirst):
+            for (newtop, children) in walktree(os.path.join(top, name), depthfirst):
                 yield newtop, children
     if depthfirst:
         yield top, names
@@ -143,7 +143,8 @@ def dir_path(type, path=""):
     return render_to_string('path.html', context_instance = context)
 
 def dir_structure(type, top='', current_dir='', level=0):
-    if top == '/': top = ''
+    if top == '/':
+        top = ''
     from xml.sax.saxutils import escape # To quote out things like &amp;
     #import os, stat, types
     
@@ -151,30 +152,32 @@ def dir_structure(type, top='', current_dir='', level=0):
     folder_class = 'folderS'
     folder_opened = ''
     class_act = ''
-    if top == current_dir: class_act = 'folderAct'
-    
+    if top == current_dir:
+        class_act = 'folderAct'
     elif re.compile('^'+top).search(current_dir):
         folder_class = 'folderOpened'
         folder_opened = 'style="display:block;"'
     ret = ''
     type_name = 'Files'
-    if type == 'images': type_name = 'Images'
+    if type == 'images':
+        type_name = 'Images'
 
     # firstly read inner directories
     files_num = 0
     dirs_num = 0
     inner = ""
-    #raise Exception(top)
-    for name in os.listdir(join(settings.MEDIA_ROOT, STORAGE_ROOT,top)):
-        if isdir(join(settings.MEDIA_ROOT, STORAGE_ROOT,top,name)) and not name.startswith('.'):
-            inner += dir_structure(type, os.path.join(top,name), current_dir, level+1)
+    fdir = join(FULL_STORAGE_ROOT, top)
+    for name in os.listdir(fdir):
+        if isdir(join(fdir, name)) and not name.startswith('.'):
+            inner += dir_structure(type, os.path.join(top, name), current_dir, level+1)
             dirs_num += 1
-        elif isfile(join(settings.MEDIA_ROOT, STORAGE_ROOT, top, name)) and not THUMB_PATTERN.search(name):
+        elif isfile(join(fdir, name)) and not THUMB_PATTERN.search(name):
             files_num += 1
     # save current (top) directory
     if top == '':
         ret += '<div class="folder%s %s" path="" pathtype="%s">%s (%d)</div>\n' % (type.capitalize(), class_act, type, type_name, files_num)
         if inner != "":
+
             ret += '<div class="folderOpenSection" style="display:block;">\n' + inner + '</div>\n'
     else:
         if inner != "":
@@ -187,7 +190,7 @@ def dir_structure(type, top='', current_dir='', level=0):
 
 def dir_show(top):
 
-    fdir = join(settings.MEDIA_ROOT, STORAGE_ROOT, top)
+    fdir = join(FULL_STORAGE_ROOT, top)
     files = Thumbs(top).load()
     
     class FileInfo(object):
@@ -202,6 +205,7 @@ def dir_show(top):
             self.md5_digest = md5_digest
             self.url = url
             self.abs_url = abs_url
+
     objects = []
 
     for f_name in os.listdir(fdir):
@@ -219,27 +223,25 @@ def dir_show(top):
                 fullname = join(fdir, f_name)
                 f = open(fullname, 'rb')
                 try:
-                    try:
-                        img = Image.open(f)
-                    except:
-                        'not a valid imgage skip'
-                        continue
-                    name_, ext = splitext(f_name)
-                    ext = ext.upper()
-                    linkto = fullname
-                    fsize = os.path.getsize(fullname)
-                    fdate = os.path.getmtime(fullname)
-                    fwidth, fheight = img.size
+                    img = Image.open(f)
                     md5_digest = md5.new(f.read()).hexdigest()
+                except: #not a valid image. skiping...
+                    continue
                 finally:
                     f.close()
+                name_, ext = splitext(f_name)
+                ext = ext.upper()
+                linkto = fullname
+                fsize = os.path.getsize(fullname)
+                fdate = os.path.getmtime(fullname)
+                fwidth, fheight = img.size
             url = p2u(join(top,f_name)) # XXX join url with path
             abs_url = p2u(os.path.join(STORAGE_ROOT, url))
 
             objects.append(FileInfo(f_name, ext, linkto, fsize, fdate, fwidth, fheight, md5_digest, url, abs_url))
     
-    context= Context({'objects':objects,
-                     })
+    context = Context({'objects':objects,
+                      })
     
     return render_to_string('show_dir.html', context_instance=context)
 
@@ -253,7 +255,7 @@ def del_file(request):
         if files.has_key(filename):
             del files[filename]
 
-        fullpath = os.path.join(settings.MEDIA_ROOT, STORAGE_ROOT, path, filename)
+        fullpath = os.path.join(FULL_STORAGE_ROOT, path, filename)
         try:
             os.remove(fullpath)
         except OSError, e:
@@ -269,8 +271,8 @@ def upload_file(request):
         path = request.POST.get('path')
         path = path.strip('/')
         top = path
-        if not isdir(join(settings.MEDIA_ROOT, STORAGE_ROOT, top, '.thumbs')):
-            os.mkdir(join(settings.MEDIA_ROOT, STORAGE_ROOT, top, '.thumbs'))
+        if not isdir(join(FULL_STORAGE_ROOT, top, THUMBS_SUBDIR)):
+            os.mkdir(join(FULL_STORAGE_ROOT, top, THUMBS_SUBDIR))
         
         files = Thumbs(top).load()
         
@@ -288,16 +290,21 @@ def upload_file(request):
                 
                 filename = name + '.' + ext
                 filelink = join(top,filename)
-                filepath = join(settings.MEDIA_ROOT, STORAGE_ROOT, top, filename)
+                filepath = join(FULL_STORAGE_ROOT, top, filename)
                 
                 img_file = open(filepath, 'wb')
-                img_file.write(file_body)
-                img_file.close()
+                try:
+                    img_file.write(file_body)
+                finally:
+                    img_file.close()
                 
                 img_file = open(filepath, 'rb')
-                image = Image.open(img_file)
+                try:
+                    image = Image.open(img_file)
+                finally:
+                    img_file.close()
+
                 xsize, ysize = image.size
-                img_file.close()
                 
                 files[filename] = {
                     'filename': filename,
