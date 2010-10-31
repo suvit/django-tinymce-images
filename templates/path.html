@@ -1,0 +1,12 @@
+{% load media %}
+<div class="addrItem" path="" pathtype="{{type}}" title="">
+        <img src="{{ openfn }}" width="16" height="16" alt="Корневая папка" />
+</div>
+{%for p in res_path %}
+    {% if forloop.last %}
+	   <div class="addrItemEnd"
+	{% else %}
+	   <div class="addrItem"    
+    {% endif %}
+	   path="{{p.add_path}}" pathtype="{{type}}" title=""><div>{{p.path}}</div></div>
+	{% endfor %}
