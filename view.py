@@ -62,11 +62,11 @@ class Thumbs:
             output.close()
 
 @staff_member_required
-def show_tree(request, path):
+def show_tree(request, type, path):
     #return HttpResponse(DirStructure('files', 'first', $this->AccessDir($_POST['path'], 'files'))
     if path:
         path = path.strip('/')    
-    return HttpResponse(dir_structure('images', path))
+    return HttpResponse(dir_structure(type, path))
 
 @staff_member_required
 def show_path(request, type, path):
@@ -76,11 +76,11 @@ def show_path(request, type, path):
     return HttpResponse(dir_path(type, path))
 
 @staff_member_required
-def show_dir(request, path):
+def show_dir(request, type, path):
     if path:
         path = path.strip('/')    
     
-    return HttpResponse(dir_show(path))
+    return HttpResponse(dir_show(type, path))
 
 @staff_member_required
 def new_folder(request, path, name):
@@ -188,7 +188,7 @@ def dir_structure(type, top='', current_dir='', level=0):
     
     return ret
 
-def dir_show(top):
+def dir_show(type, top):
 
     fdir = join(FULL_STORAGE_ROOT, top)
     files = Thumbs(top).load()

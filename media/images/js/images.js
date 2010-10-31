@@ -53,7 +53,7 @@ $(function(){
 	//Каталог папок
 	$.ajax({
 		type: "POST",
-		url: connector_url + 'show_tree/',
+		url: connector_url + 'show_tree/images/',
 		//data: "action=showtree",
 		success: function(data){
 			$('#tree').html(data);
@@ -62,14 +62,18 @@ $(function(){
 	//Список файлов
 	$.ajax({
 		type: "POST",
-		url: connector_url + 'show_dir/',
-		//data: "action=showdir&pathtype=images&path=",
+		url: connector_url + 'show_dir/images/',
 		success: function(data){
 			$('#loader').hide();
 			//$('#files').html(data);
 			$('#mainFiles').html('<div id="files">'+data+'</div>');
 			showFootInfo();
-		}
+		},
+      		error: function(XMLHttpRequest, textStatus, errorThrown){
+      			$('#loader').hide();
+      			alert('При формирование списка файлов произошла ошибка:' + textStatus);
+      		}
+
 	});
 	//Session ID для Flash-загрузчика
 	var SID;
@@ -101,33 +105,47 @@ $(function(){
 	});
 	$('.addrItem div,.addrItem img').live('mouseup', function(){
 		$(this).parent().css({'background-color':'#b1d3fa'});
+                type = $(this).parent().attr('pathtype');
+                path = $(this).parent().attr('path');
+                if (!type || !path)
+                    return;
 		$.ajax({
 			type: "POST",
-			url: connector_url + 'show_tree/' + $(this).parent().attr('path'),
-			//data: "action=showtree&path="+$(this).parent().attr('path')+"&type="+$(this).parent().attr('pathtype'),
+			url: connector_url + 'show_tree/' + type + '/' + path,
 			success: function(data){
-				//$('#loader').hide();
 				$('#tree').html(data);
-			}
+			},
+       			error: function(XMLHttpRequest, textStatus, errorThrown){
+       				$('#loader').hide();
+       				alert('При формирование дерева объектов произошла ошибка:' + textStatus);
+       			}
 		});
 		$.ajax({
 			type: "POST",
-			url: connector_url + 'show_path/' + $(this).parent().attr('pathtype') + '/' +$(this).parent().attr('path'),
-            //data: "action=showpath&type="+$(this).parent().attr('pathtype')+"&path="+$(this).parent().attr('path'),
+			url: connector_url + 'show_path/' + type + '/' + path,
 			success: function(data){
 				$('#addr').html(data);
-			}
+			},
+      			error: function(XMLHttpRequest, textStatus, errorThrown){
+      				$('#loader').hide();
+       				alert('При формирование списка файлов произошла ошибка:' + textStatus);
+      			}
+
 		});
 		$.ajax({
 			type: "POST",
-			url: connector_url + 'show_dir' +$(this).parent().attr('path'),
-            //data: "action=showdir&pathtype="+$(this).parent().attr('pathtype')+"&path="+$(this).parent().attr('path'),
+			url: connector_url + 'show_dir/' + type + '/' + path,
 			success: function(data){
 				$('#loader').hide();
 				//$('#files').html(data);
 				$('#mainFiles').html('<div id="files">'+data+'</div>');
 				showFootInfo();
-			}
+			},
+      			error: function(XMLHttpRequest, textStatus, errorThrown){
+      				$('#loader').hide();
+       				alert('При формирование списка папок произошла ошибка:' + textStatus);
+      			}
+
 		});
 	});
 	
@@ -161,35 +179,37 @@ $(function(){
 	function openFolder(type, path, callback) {
 		$.ajax({
 			type: "POST",
-			url: connector_url + 'show_path/' + type +'/'+ path,
-			//data: "action=showpath&type="+type+"&path="+path,
+			url: connector_url + 'show_path/' + type + '/' + path,
 			success: function(data){
 				$('#addr').html(data);
 			}
 		});
 		$.ajax({
 			type: "POST",
-			url: connector_url + 'show_dir/' + path,
-            //data: "action=showdir&pathtype="+type+"&path="+path,
+			url: connector_url + 'show_dir/' + type + '/' + path,
 			success: function(data){
 				$('#loader').hide();
 				//$('#files').html(data);
 				$('#mainFiles').html('<div id="files">'+data+'</div>');
 				showFootInfo();
 				callback();
-			}
+			},
+      			error: function(XMLHttpRequest, textStatus, errorThrown){
+      				$('#loader').hide();
+       				alert('При формирование списка папок произошла ошибка:' + textStatus);
+      			}
 		});
 	}
 	$('.folderClosed,.folderOpened,.folderS,.folderImages,.folderFiles').live('click',function(){
 		
 		//Запрет на переключение
-		if(folderLoadFlag) return false;
+		if(folderLoadFlag)
+                    return false;
 		folderLoadFlag = true;
 		
 		$('#loader').show();
 		$('.folderAct').removeClass('folderAct');
-		$(this).removeClass('folderHover');
-		$(this).addClass('folderAct');
+		$(this).removeClass('folderHover').addClass('folderAct');
 			
 		openFolder($(this).attr('pathtype'), $(this).attr('path'), function(){ folderLoadFlag = false; });
 	});
@@ -279,10 +299,10 @@ $(function(){
 		var pathtype = $('.folderAct').attr('pathtype');
 		var path = $('.folderAct').attr('path');
 		var path_new = $('#newFolderBlock input').val();
-		var path_will = path+'/'+path_new;
+		var path_will = path + '/' + path_new;
 		$.ajax({
 			type: "POST",
-			url: connector_url + 'new_folder/' + path_new+ '/' + path,
+			url: connector_url + 'new_folder/' + path_new + '/' + path,
 			data: "action=newfolder&type="+ pathtype +"&path="+ path +"&name=" + path_new,
 			success: function(data){
 				$('#loader').hide();
@@ -298,8 +318,7 @@ $(function(){
 					//Открываем созданную папку
 					$.ajax({
 						type: "POST",
-						url: connector_url + 'show_dir/'+ +$('.folderAct').attr('path'),
-						//data: "action=showdir&pathtype="+pathtype+"&path="+$('.folderAct').attr('path'),
+						url: connector_url + 'show_dir/'+ pathtype + '/' + $('.folderAct').attr('path'),
 						success: function(data){
 							$('#loader').hide();
 							//$('#files').html(data);
@@ -331,8 +350,7 @@ $(function(){
 						//showFootInfo();
 						$.ajax({
 							type: "POST",
-							url: connector_url +'show_tree/',
-							data: "action=showtree&path=&type="+path.type,
+							url: connector_url + 'show_tree/' + path.type,
 							success: function(data){
 								//$('#loader').hide();
 								$('#tree').html(data);
@@ -606,8 +624,7 @@ $(function(){
 		var path = getCurrentPath();
 		$.ajax({
 			type: "POST",
-			url: connector_url +'show_tree/'+ path.path,
-			//data: "action=c&path="+path.path+"&type="+path.type,
+			url: connector_url + 'show_tree/' + path.type + '/' + path.path,
 			success: function(data){
 				//$('#loader').hide();
 				$('#tree').html(data);
