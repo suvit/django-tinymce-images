@@ -14,6 +14,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.http import HttpResponse,  HttpResponseForbidden
 from django.template import Context
 from django.template.loader import render_to_string
+from django.utils.encoding import iri_to_uri
 
 # STORAGE_ROOT is relative to MEDIA_ROOT
 try:
@@ -235,8 +236,8 @@ def dir_show(type, top):
                 fsize = os.path.getsize(fullname)
                 fdate = os.path.getmtime(fullname)
                 fwidth, fheight = img.size
-            url = p2u(join(top,f_name)) # XXX join url with path
-            abs_url = p2u(os.path.join(STORAGE_ROOT, url))
+            url = iri_to_uri(join(STORAGE_ROOT, top, f_name))
+            abs_url = iri_to_uri(join(STORAGE_URL, top, f_name))
 
             objects.append(FileInfo(f_name, ext, linkto, fsize, fdate, fwidth, fheight, md5_digest, url, abs_url))
     
