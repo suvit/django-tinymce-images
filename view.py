@@ -28,7 +28,7 @@ try:
 except AttributeError:
     STORAGE_URL = os.path.join(settings.MEDIA_URL, STORAGE_ROOT)
 
-FULL_STORAGE_URL = join(settings.MEDIA_ROOT, STORAGE_ROOT)
+FULL_STORAGE_ROOT = join(settings.MEDIA_ROOT, STORAGE_ROOT)
 
 THUMBS_SUBDIR = '.thumbs'
 
