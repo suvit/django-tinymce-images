@@ -97,11 +97,8 @@ def new_folder(request, path, name):
 
 @staff_member_required
 def del_folder(request, path):
-    rmdir_r(join(FULL_STORAGE_ROOT, path))
+    shutil.rmtree(join(FULL_STORAGE_ROOT, path), ignore_errors=True)
     return HttpResponse("{ok:''}");
-
-def rmdir_r(top):
-    shutil.rmtree(top, ignore_errors=True)
 
 def walktree(top=".", depthfirst=True):
     import stat, types
@@ -264,7 +261,7 @@ def del_file(request):
                 raise
     
     Thumbs(path).dump(files)
-    return HttpResponse(show_dir(request, path))
+    return HttpResponse(dir_show('images', path))
 
 @staff_member_required
 def upload_file(request):
