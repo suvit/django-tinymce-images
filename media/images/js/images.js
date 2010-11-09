@@ -464,7 +464,7 @@ $(function(){
 			var text = '<img src="'+e.attr('serv_url')+'" width="'+e.attr('fwidth')+'" height="'+e.attr('fheight')+'" alt="'+e.attr('fname')+'" /> ';
 		}
 		if (window.opener.$('#'+window.name).hasClass('twimage')) {
-		  src = e.attr('serv_url');
+		  src = e.attr('url');
                   text = e.attr('linkto');
                   abs_url = e.attr('abs_url');
                   ImagesDialog.insert(src, text, abs_url);
