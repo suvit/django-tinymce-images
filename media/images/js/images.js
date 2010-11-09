@@ -22,14 +22,14 @@ if (window.name.substring(0,2)=='mc') {
 
     insert : function(src, text, abs_url) {
 
-      window.opener.$('#' + window.name).attr('value', abs_url);
+      window.opener.$('#' + window.name).attr('value', src);
       a_img = window.opener.$('#' + window.name + '_link_image');
-      a_img.attr('href', src);
+      a_img.attr('href', abs_url);
       img = a_img.find('img');
       if (img.size())
-        img.attr('src', src)
+        img.attr('src', abs_url)
       else
-        a_img.html('<img src="'+ src +'"/>');
+        a_img.html('<img src="'+ abs_url +'"/>');
 
       window.close();
     }
