@@ -21,7 +21,6 @@ if (window.name.substring(0,2)=='mc') {
   var ImagesDialog = {
 
     insert : function(src, text, abs_url) {
-      alert(src + '|' + abs_url);
       window.opener.$('#' + window.name).attr('value', src);
       a_img = window.opener.$('#' + window.name + '_link_image');
       a_img.attr('href', abs_url);
