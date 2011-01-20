@@ -192,7 +192,7 @@ def dir_show(type, top):
     files = Thumbs(top).load()
     
     class FileInfo(object):
-        def __init__(self, f_name, ext, linkto, fsize, fdate, fwidth, fheight, md5_digest, url, abs_url):
+        def __init__(self, f_name, ext, linkto, fsize, fdate, fwidth, fheight, md5_digest, url, abs_url, rel_path):
             self.f_name = f_name
             self.ext = ext
             self.linkto = linkto
@@ -203,6 +203,7 @@ def dir_show(type, top):
             self.md5_digest = md5_digest
             self.url = url
             self.abs_url = abs_url
+            self.rel_path = rel_path
 
     objects = []
 
@@ -235,8 +236,20 @@ def dir_show(type, top):
                 fwidth, fheight = img.size
             url = iri_to_uri(join(STORAGE_ROOT, top, f_name))
             abs_url = iri_to_uri(join(STORAGE_URL, top, f_name))
+            rel_path = join(STORAGE_ROOT, top, f_name)
 
-            objects.append(FileInfo(f_name, ext, linkto, fsize, fdate, fwidth, fheight, md5_digest, url, abs_url))
+            objects.append(FileInfo(f_name,
+                                    ext,
+                                    linkto,
+                                    fsize,
+                                    fdate,
+                                    fwidth,
+                                    fheight,
+                                    md5_digest,
+                                    url,
+                                    abs_url,
+                                    rel_path
+                                    ))
     
     context = Context({'objects':objects,
                       })
