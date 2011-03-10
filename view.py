@@ -6,7 +6,11 @@ import shutil
 from os.path import join
 from os.path import isdir, isfile, dirname, basename, normpath, splitext
 
-from PIL import Image
+try:
+    from PIL import Image
+except ImportError:
+    import Image
+
 from urllib import pathname2url as p2u
 
 from django.conf import settings

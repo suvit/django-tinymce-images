@@ -5,7 +5,10 @@ from django.template import RequestContext
 from django.conf import settings
 import urllib, urlparse, datetime, os, re, md5
 from os.path import isdir, isfile, dirname, basename
-from PIL import Image
+try:
+    from PIL import Image
+except ImportError:
+    import Image
 #from pickle import Pickler, Unpickler
 import pickle
 
