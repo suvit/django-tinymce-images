@@ -1,7 +1,4 @@
 
-//connector_url = 'connector/php/';
-connector_url = 'connector/python/';
-
 if (window.name.substring(0,2)=='mc') {
     var ImagesDialog = {
       init : function(ed) {

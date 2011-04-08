@@ -1,5 +1,8 @@
+# -*- encoding: utf-8 -*-
 from django.conf.urls.defaults import *
-import views as tiny_views
+
+url_prefix = 'assets/lfs/tiny_mce/jscripts/tiny_mce/plugins/images/connector/python/'
+
 urlpatterns = patterns('tinymce_images.view',
     #url(r'download/$', tiny_views.download),
     #url(r'^$', tiny_views.all),
@@ -12,3 +15,14 @@ urlpatterns = patterns('tinymce_images.view',
     url(r'^del_file/$', 'del_file', {}, 'del_file'),
     url(r'^sid/$', 'sid', {}, 'sid'),
 )
+
+urlpatterns = patterns("",
+    url(r'^%s/' % url_prefix, include(urlpatterns)),
+    url(r'^tinymce/images/connector/',
+        'django.views.generic.simple.direct_to_template',
+        {'template': 'connector_url.js',
+         'mimetype': 'text/javascript',
+         'connector_url': '/' + url_prefix},
+        name='connector_url' ),
+)
+
