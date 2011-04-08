@@ -15,15 +15,16 @@ urlpatterns = patterns('tinymce_images.view',
     url(r'^del_file/$', 'del_file', {}, 'del_file'),
     url(r'^sid/$', 'sid', {}, 'sid'),
 
-    url(r'^connector/$',
+)
+
+urlpatterns = patterns("",
+    url(r'^%s' % url_prefix, include(urlpatterns)),
+    url(r'^%sconnector/$' % url_prefix,
         'django.views.generic.simple.direct_to_template',
         {'template': 'connector_url.js',
          'mimetype': 'text/javascript',
          'connector_url': '/%s' % url_prefix},
         name='connector_url' ),
-)
 
-urlpatterns = patterns("",
-    url(r'^%s' % url_prefix, include(urlpatterns)),
 )
 
