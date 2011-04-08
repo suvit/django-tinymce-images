@@ -1,2 +1,2 @@
 
-connector_url = '{{connector_url|safe}}';
+connector_url = '{{connector_url}}';
