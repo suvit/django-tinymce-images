@@ -17,7 +17,7 @@ urlpatterns = patterns('tinymce_images.view',
 )
 
 urlpatterns = patterns("",
-    url(r'^%s/' % url_prefix, include(urlpatterns)),
+    url(r'^%s' % url_prefix, include(urlpatterns)),
     url(r'^tinymce/images/connector/$',
         'django.views.generic.simple.direct_to_template',
         {'template': 'connector_url.js',
