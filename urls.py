@@ -1,7 +1,7 @@
 # -*- encoding: utf-8 -*-
 from django.conf.urls.defaults import *
 
-url_prefix = 'tiny_mce/images/'
+url_prefix = 'tinymce/images/'
 
 urlpatterns = patterns('tinymce_images.view',
     #url(r'download/$', tiny_views.download),
