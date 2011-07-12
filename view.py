@@ -1,6 +1,7 @@
 
 import pickle
-import os, re, md5
+import os, re
+import hashlib
 import errno
 import shutil
 from os.path import join
@@ -227,7 +228,7 @@ def dir_show(type, top):
                 f = open(fullname, 'rb')
                 try:
                     img = Image.open(f)
-                    md5_digest = md5.new(f.read()).hexdigest()
+                    md5_digest = hashlib.md5(f.read()).hexdigest()
                 except: #not a valid image. skiping...
                     continue
                 finally:
@@ -301,7 +302,7 @@ def upload_file(request):
                     return HttpResponseForbidden()
                 
                 file_body = file[1].read()
-                md5_digest = md5.new(file_body).hexdigest()
+                md5_digest = hashlib.md5(file_body).hexdigest()
                 
                 filename = name + '.' + ext
                 filelink = join(top,filename)
