@@ -40,7 +40,8 @@
   
   <!-- Нормальная загрузка -->
   <div id="uploadAreaNormal">
-  <form action="connector/python/upload_file/" enctype="multipart/form-data" method="post" id="filesForm"><fieldset>
+  <!-- fix url -->
+  <form action="/tinymce/images/upload_file/" enctype="multipart/form-data" method="post" id="filesForm"><fieldset>
    <input type="hidden" name="path" id="normalPathVal" value="" />
    <input type="hidden" name="pathtype" id="normalPathtypeVal" value="" />
    <div>Выберите файл:</div>
