@@ -39,7 +39,7 @@ $(function(){
 	$('#loader').show();
 	//Строка адреса
 	$.ajax({
-		type: "POST",
+		type: "GET",
 		url: connector_url +'show_path/images/' ,
 		//data: "action=showpath&type=images&path=",
 		success: function(data){
@@ -48,7 +48,7 @@ $(function(){
 	});
 	//Каталог папок
 	$.ajax({
-		type: "POST",
+		type: "GET",
 		url: connector_url + 'show_tree/images/',
 		//data: "action=showtree",
 		success: function(data){
@@ -57,7 +57,7 @@ $(function(){
 	});
 	//Список файлов
 	$.ajax({
-		type: "POST",
+		type: "GET",
 		url: connector_url + 'show_dir/images/',
 		success: function(data){
 			$('#loader').hide();
@@ -74,7 +74,7 @@ $(function(){
 	//Session ID для Flash-загрузчика
 	var SID;
 	$.ajax({
-		type: "POST",
+		type: "GET",
 		url: connector_url + "sid/",
 		//data: "action=SID",
 		success: function(data){
@@ -106,7 +106,7 @@ $(function(){
                 if (!type || !path)
                     return;
 		$.ajax({
-			type: "POST",
+			type: "GET",
 			url: connector_url + 'show_tree/' + type + '/' + path,
 			success: function(data){
 				$('#tree').html(data);
@@ -117,7 +117,7 @@ $(function(){
        			}
 		});
 		$.ajax({
-			type: "POST",
+			type: "GET",
 			url: connector_url + 'show_path/' + type + '/' + path,
 			success: function(data){
 				$('#addr').html(data);
@@ -129,7 +129,7 @@ $(function(){
 
 		});
 		$.ajax({
-			type: "POST",
+			type: "GET",
 			url: connector_url + 'show_dir/' + type + '/' + path,
 			success: function(data){
 				$('#loader').hide();
@@ -174,14 +174,14 @@ $(function(){
 	//Открыть указанную папку
 	function openFolder(type, path, callback) {
 		$.ajax({
-			type: "POST",
+			type: "GET",
 			url: connector_url + 'show_path/' + type + '/' + path,
 			success: function(data){
 				$('#addr').html(data);
 			}
 		});
 		$.ajax({
-			type: "POST",
+			type: "GET",
 			url: connector_url + 'show_dir/' + type + '/' + path,
 			success: function(data){
 				$('#loader').hide();
@@ -297,9 +297,9 @@ $(function(){
 		var path_new = $('#newFolderBlock input').val();
 		var path_will = path + '/' + path_new;
 		$.ajax({
-			type: "POST",
+			type: "GET",
 			url: connector_url + 'new_folder/' + path_new + '/' + path,
-			data: "action=newfolder&type="+ pathtype +"&path="+ path +"&name=" + path_new,
+			//data: "action=newfolder&type="+ pathtype +"&path="+ path +"&name=" + path_new,
 			success: function(data){
 				$('#loader').hide();
 				var blocks = eval('('+data+')');
@@ -313,7 +313,7 @@ $(function(){
 					
 					//Открываем созданную папку
 					$.ajax({
-						type: "POST",
+						type: "GET",
 						url: connector_url + 'show_dir/'+ pathtype + '/' + $('.folderAct').attr('path'),
 						success: function(data){
 							$('#loader').hide();
@@ -333,7 +333,7 @@ $(function(){
 		if(confirm('Удалить папку '+path.path+'?')) {
 			$('#loader').show();
 			$.ajax({
-				type: "POST",
+				type: "GET",
 				url: connector_url +'del_folder' + path.path + '/',
 				//data: "action=delfolder&pathtype="+path.type+"&path="+path.path,
 				success: function(data){
@@ -345,7 +345,7 @@ $(function(){
 						//$('#mainFiles').html('<div id="files">'+result.ok+'</div>');
 						//showFootInfo();
 						$.ajax({
-							type: "POST",
+							type: "GET",
 							url: connector_url + 'show_tree/' + path.type,
 							success: function(data){
 								//$('#loader').hide();
@@ -619,7 +619,7 @@ $(function(){
 		$('#loader').show();
 		var path = getCurrentPath();
 		$.ajax({
-			type: "POST",
+			type: "GET",
 			url: connector_url + 'show_tree/' + path.type + '/' + path.path,
 			success: function(data){
 				//$('#loader').hide();
@@ -688,7 +688,7 @@ $(function(){
 	//SWFUpload загрузка
 	swfu = new SWFUpload({
 		flash_url : "js/swfupload/swfupload.swf",
-		upload_url: "../../" + connector_url + 'upload_file/',	// Relative to the SWF file
+		upload_url: connector_url + 'upload_file/',	// Relative to the SWF file
 		post_params: {
 			//"PHPSESSID" : "NONE",
 			//"action" : "uploadfile"
