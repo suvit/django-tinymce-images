@@ -20,6 +20,7 @@ from django.http import HttpResponse,  HttpResponseForbidden
 from django.template import Context
 from django.template.loader import render_to_string
 from django.utils.encoding import iri_to_uri
+from django.views.decorators.csrf import csrf_exempt
 
 # STORAGE_ROOT is relative to MEDIA_ROOT
 try:
@@ -262,6 +263,7 @@ def dir_show(type, top):
     return render_to_string('show_dir.html', context_instance=context)
 
 @staff_member_required
+@csrf_exempt
 def del_file(request):
     path = request.POST['path'].strip('/')
 
@@ -282,6 +284,7 @@ def del_file(request):
     return HttpResponse(dir_show('images', path))
 
 @staff_member_required
+@csrf_exempt
 def upload_file(request):
     try:
         path = request.POST.get('path')
