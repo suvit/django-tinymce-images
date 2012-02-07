@@ -4,9 +4,9 @@
 </div>
 {%for p in res_path %}
     {% if forloop.last %}
-	   <div class="addrItemEnd"
-	{% else %}
-	   <div class="addrItem"    
+       <div class="addrItemEnd"
+    {% else %}
+       <div class="addrItem"
     {% endif %}
-	   path="{{p.add_path}}" pathtype="{{type}}" title=""><div>{{p.path}}</div></div>
+       path="{{p.add_path}}" pathtype="{{type}}" title=""><div>{{p.path}}</div></div>
 {% endfor %}

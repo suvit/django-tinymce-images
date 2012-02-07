@@ -20,15 +20,24 @@ urlpatterns = patterns('tinymce_images.view',
     url(r'^upload_file/$', 'upload_file', {}, 'upload_file'),
     url(r'^del_file/$', 'del_file', {}, 'del_file'),
     url(r'^sid/$', 'sid', {}, 'sid'),
-
 )
+
+
+class ConnectorView(TemplateView):
+
+    def get_context_data(self, **kwargs):
+        kwargs.update(connector_url='/%s' % url_prefix)
+        return super(ConnectorView, self).get_context_data(**kwargs)
+
+    def get(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        return self.render_to_response(context,
+                                       content_type='text/javascript')
+
 
 urlpatterns = patterns("",
     url(r'^%s' % url_prefix, include(urlpatterns)),
     url(r'^%sconnector/$' % url_prefix,
-        TemplateView.as_view(template_name='connector_url.js',
-                             mimetype='text/javascript',
-                             connector_url='/%s' % url_prefix),
+        ConnectorView.as_view(template_name='connector_url.js'),
         name='connector_url'),
-
 )
