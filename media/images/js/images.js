@@ -65,10 +65,10 @@ $(function(){
             $('#mainFiles').html('<div id="files">'+data+'</div>');
             showFootInfo();
         },
-            error: function(XMLHttpRequest, textStatus, errorThrown){
-                $('#loader').hide();
-                alert('При формирование списка файлов произошла ошибка:' + textStatus);
-            }
+        error: function(XMLHttpRequest, textStatus, errorThrown){
+            $('#loader').hide();
+            alert('При формирование списка файлов произошла ошибка:' + textStatus);
+        }
 
     });
     //Session ID для Flash-загрузчика
@@ -742,21 +742,4 @@ $(function(){
         swfupload_pre_load_handler : swfUploadPreLoad,
         swfupload_load_failed_handler : swfUploadLoadFailed
     });
-    
 });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -294,7 +294,9 @@ def dir_show(type, top):
     logger.debug(u'render template')
     context = Context({'objects':objects,
                       })
-    return render_to_string('show_dir.html', context_instance=context)
+    res = render_to_string('show_dir.html', context_instance=context)
+    logger.debug(u'finish dir_show for `%s`' % top)
+    return res
 
 
 @staff_member_required
