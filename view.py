@@ -214,55 +214,74 @@ class FileInfo(object):
 def dir_show(type, top):
 
     fdir = join(FULL_STORAGE_ROOT, top)
-    files = Thumbs(top).load()
+    thumbs_db = Thumbs(top)
+    thumbs_db_changed = False
+    files = thumbs_db.load()
 
     objects = []
 
     for f_name in os.listdir(fdir):
         fullname = join(fdir, f_name)
-        if os.path.isfile(fullname):
-            if files.has_key(f_name):
-                info = files[f_name]
-                ext = info['ext'].upper()
-                linkto = join(top,f_name)
-                fsize = info['size']
-                fdate = info['date']
-                fwidth = info['width']
-                fheight = info['height']
-            else:
-                f = open(fullname, 'rb')
-                try:
-                    img = Image.open(f)
-                except: #not a valid image. skiping...
-                    continue
-                finally:
-                    f.close()
+        if not os.path.isfile(fullname):
+            continue
 
-                name_, ext = splitext(f_name)
-                ext = ext.upper()
-                linkto = fullname
-                fsize = os.path.getsize(fullname)
-                fdate = os.path.getmtime(fullname)
-                fwidth, fheight = img.size
-            url = iri_to_uri(join(STORAGE_ROOT, top, f_name))
-            abs_url = iri_to_uri(join(STORAGE_URL, top, f_name))
-            rel_path = join(STORAGE_ROOT, top, f_name)
+        if f_name in files:
+            info = files[f_name]
+            ext = info['ext'].upper()
+            linkto = join(top, f_name)
+            fsize = info['size']
+            fdate = info['date']
+            fwidth = info['width']
+            fheight = info['height']
+        else:
+            f = open(fullname, 'rb')
+            try:
+                img = Image.open(f)
+            except: #not a valid image. skiping...
+                continue
+            finally:
+                f.close()
 
-            objects.append(FileInfo(f_name,
-                                    ext,
-                                    linkto,
-                                    fsize,
-                                    fdate,
-                                    fwidth,
-                                    fheight,
-                                    url,
-                                    abs_url,
-                                    rel_path
-                                    ))
+            name_, ext = splitext(f_name)
+            ext = ext.upper()
+            linkto = fullname
+            fsize = os.path.getsize(fullname)
+            fdate = os.path.getmtime(fullname)
+            fwidth, fheight = img.size
+            files[f_name] = {
+                    'filename': f_name,
+                    'name':     name_,
+                    'ext':      ext,
+                    'path':     top,
+                    'link':     fullname,
+                    'size':     fsize,
+                    'date':     fdate,
+                    'width':    fwidth,
+                    'height':   fheight,
+                }
+            thumbs_db_changed = True
+
+        url = iri_to_uri(join(STORAGE_ROOT, top, f_name))
+        abs_url = iri_to_uri(join(STORAGE_URL, top, f_name))
+        rel_path = join(STORAGE_ROOT, top, f_name)
+
+        objects.append(FileInfo(f_name,
+                                ext,
+                                linkto,
+                                fsize,
+                                fdate,
+                                fwidth,
+                                fheight,
+                                url,
+                                abs_url,
+                                rel_path
+                                ))
+
+    if thumbs_db_changed:
+        thumbs_db.dump(files)
 
     context = Context({'objects':objects,
                       })
-
     return render_to_string('show_dir.html', context_instance=context)
 
 
