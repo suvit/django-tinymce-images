@@ -192,24 +192,28 @@ def dir_structure(type, top='', current_dir='', level=0):
     
     return ret
 
+
+class FileInfo(object):
+    def __init__(self, f_name, ext, linkto, fsize, fdate,
+                 fwidth, fheight, md5_digest, url, abs_url, rel_path):
+        self.f_name = f_name
+        self.ext = ext
+        self.linkto = linkto
+        self.fsize = fsize
+        self.fdate = fdate
+        self.fwidth = fwidth
+        self.fheight = fheight
+        self.md5_digest = md5_digest
+        self.url = url
+        self.abs_url = abs_url
+        self.rel_path = rel_path
+
+
+@staff_member_required
 def dir_show(type, top):
 
     fdir = join(FULL_STORAGE_ROOT, top)
     files = Thumbs(top).load()
-    
-    class FileInfo(object):
-        def __init__(self, f_name, ext, linkto, fsize, fdate, fwidth, fheight, md5_digest, url, abs_url, rel_path):
-            self.f_name = f_name
-            self.ext = ext
-            self.linkto = linkto
-            self.fsize = fsize
-            self.fdate = fdate
-            self.fwidth = fwidth
-            self.fheight = fheight
-            self.md5_digest = md5_digest
-            self.url = url
-            self.abs_url = abs_url
-            self.rel_path = rel_path
 
     objects = []
 
@@ -256,10 +260,10 @@ def dir_show(type, top):
                                     abs_url,
                                     rel_path
                                     ))
-    
+
     context = Context({'objects':objects,
                       })
-    
+
     return render_to_string('show_dir.html', context_instance=context)
 
 @staff_member_required
