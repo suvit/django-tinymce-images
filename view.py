@@ -3,7 +3,6 @@
 import logging
 import pickle
 import os, re
-import hashlib
 import errno
 import shutil
 from os.path import join, isdir, isfile, dirname, basename, normpath, splitext
@@ -199,7 +198,7 @@ def dir_structure(type, top='', current_dir='', level=0):
 
 class FileInfo(object):
     def __init__(self, f_name, ext, linkto, fsize, fdate,
-                 fwidth, fheight, md5_digest, url, abs_url, rel_path):
+                 fwidth, fheight, url, abs_url, rel_path):
         self.f_name = f_name
         self.ext = ext
         self.linkto = linkto
@@ -207,7 +206,6 @@ class FileInfo(object):
         self.fdate = fdate
         self.fwidth = fwidth
         self.fheight = fheight
-        self.md5_digest = md5_digest
         self.url = url
         self.abs_url = abs_url
         self.rel_path = rel_path
@@ -221,7 +219,8 @@ def dir_show(type, top):
     objects = []
 
     for f_name in os.listdir(fdir):
-        if os.path.isfile(join(fdir, f_name)):
+        fullname = join(fdir, f_name)
+        if os.path.isfile(fullname):
             if files.has_key(f_name):
                 info = files[f_name]
                 ext = info['ext'].upper()
@@ -230,17 +229,15 @@ def dir_show(type, top):
                 fdate = info['date']
                 fwidth = info['width']
                 fheight = info['height']
-                md5_digest = info['md5']
             else:
-                fullname = join(fdir, f_name)
                 f = open(fullname, 'rb')
                 try:
                     img = Image.open(f)
-                    md5_digest = hashlib.md5(f.read()).hexdigest()
                 except: #not a valid image. skiping...
                     continue
                 finally:
                     f.close()
+
                 name_, ext = splitext(f_name)
                 ext = ext.upper()
                 linkto = fullname
@@ -258,7 +255,6 @@ def dir_show(type, top):
                                     fdate,
                                     fwidth,
                                     fheight,
-                                    md5_digest,
                                     url,
                                     abs_url,
                                     rel_path
@@ -268,6 +264,7 @@ def dir_show(type, top):
                       })
 
     return render_to_string('show_dir.html', context_instance=context)
+
 
 @staff_member_required
 @csrf_exempt
@@ -286,9 +283,10 @@ def del_file(request):
         except OSError, e:
             if e.errno != errno.ENOENT:
                 raise
-    
+
     Thumbs(path).dump(files)
     return HttpResponse(dir_show('images', path))
+
 
 @staff_member_required
 @csrf_exempt
@@ -299,31 +297,30 @@ def upload_file(request):
         top = path
         if not isdir(join(FULL_STORAGE_ROOT, top, THUMBS_SUBDIR)):
             os.mkdir(join(FULL_STORAGE_ROOT, top, THUMBS_SUBDIR))
-        
+
         files = Thumbs(top).load()
-        
+
         if (len(request.FILES)):
             for file in request.FILES.items():
                 if -1 == file[1].name.rfind('.'):
                     return HttpResponseForbidden()
-                
+
                 (name, ext) = file[1].name.rsplit('.', 2)
                 if not ext.lower() in ALLOWED_IMAGES:
                     return HttpResponseForbidden()
-                
+
                 file_body = file[1].read()
-                md5_digest = hashlib.md5(file_body).hexdigest()
-                
+
                 filename = name + '.' + ext
                 filelink = join(top,filename)
                 filepath = join(FULL_STORAGE_ROOT, top, filename)
-                
+
                 img_file = open(filepath, 'wb')
                 try:
                     img_file.write(file_body)
                 finally:
                     img_file.close()
-                
+
                 img_file = open(filepath, 'rb')
                 try:
                     image = Image.open(img_file)
@@ -331,7 +328,7 @@ def upload_file(request):
                     img_file.close()
 
                 xsize, ysize = image.size
-                
+
                 files[filename] = {
                     'filename': filename,
                     'name':     name,
@@ -342,15 +339,15 @@ def upload_file(request):
                     'date':     os.path.getmtime(filepath),
                     'width':    xsize,
                     'height':   ysize,
-                    'md5':      md5_digest
                 }
-                
+
         Thumbs(top).dump(files)
     except Exception, e:
         import traceback
         traceback.print_exc()
         raise
     return HttpResponse('Ok.')
+
 
 @staff_member_required
 def sid(request):

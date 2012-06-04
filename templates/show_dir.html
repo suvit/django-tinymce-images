@@ -6,15 +6,15 @@
            path="{{o.linkto}}" linkto="{{ o.linkto }}"
            fname="{{o}}" serv_url="{{ o.abs_url }}"
            abs_url="{{o.abs_url}}" url="{{ o.url }}"
-	   fsize="{{o.fsize}}" date="{{o.fdate}}"
+       fsize="{{o.fsize}}" date="{{o.fdate}}"
            fwidth="{{o.width}}" fheight="{{o.height}}"
-           md5="{{o.md5_digest}}"><tr><td valign="bottom" align="center">
+           ><tr><td valign="bottom" align="center">
      <div class="imageBlock1">
       <div class="imageImage">
-	    {% thumbnail o.rel_path '100x100' as thumb %}
-	       <img src="{{thumb.url}}" width="100" alt="{{o.f_name}}" />
-	    {% endthumbnail %}
-	   </div>
+        {% thumbnail o.rel_path '100x100' as thumb %}
+           <img src="{{thumb.url}}" width="100" alt="{{o.f_name}}" />
+        {% endthumbnail %}
+       </div>
       <div class="imageName">{{o.f_name }}</div>
      </div>
     </td></tr></table>
