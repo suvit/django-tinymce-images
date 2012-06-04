@@ -11,8 +11,10 @@
           ><tr><td valign="bottom" align="center">
     <div class="imageBlock1">
      <div class="imageImage">
-       {% thumbnail o.rel_path '100x100' as thumb %}
-          <img src="{{thumb.url}}" width="100" alt="{{o.f_name}}" />
+       {% thumbnail o.rel_path '100x100' upscale=False as thumb %}
+          <img src="{{thumb.url}}"
+               style="margin:{{ thumb|margin:'100x100' }}"
+               alt="{{o.f_name}}" />
        {% endthumbnail %}
       </div>
      <div class="imageName">{{o.f_name }}</div>
