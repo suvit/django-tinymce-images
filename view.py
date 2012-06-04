@@ -1,11 +1,12 @@
+# -*- encoding: utf-8 -*-
 
+import logging
 import pickle
 import os, re
 import hashlib
 import errno
 import shutil
-from os.path import join
-from os.path import isdir, isfile, dirname, basename, normpath, splitext
+from os.path import join, isdir, isfile, dirname, basename, normpath, splitext
 
 try:
     from PIL import Image
@@ -40,7 +41,7 @@ THUMBS_SUBDIR = '.thumbs'
 
 r = '\d{3}x\d{3}'
 THUMB_PATTERN = re.compile(r)
-    
+
 ALLOWED_IMAGES = ('jpeg','jpg','gif','png')
 
 class Thumbs:
@@ -60,7 +61,7 @@ class Thumbs:
             finally:
                 input.close()
         return files
-        
+
     def dump(self, files):
         output = open(self.dbfile, 'wb')
         try:
@@ -72,21 +73,21 @@ class Thumbs:
 def show_tree(request, type, path):
     #return HttpResponse(DirStructure('files', 'first', $this->AccessDir($_POST['path'], 'files'))
     if path:
-        path = path.strip('/')    
+        path = path.strip('/')
     return HttpResponse(dir_structure(type, path))
 
 @staff_member_required
 def show_path(request, type, path):
     if path:
-        path = path.strip('/')    
+        path = path.strip('/')
 
     return HttpResponse(dir_path(type, path))
 
 @staff_member_required
 def show_dir(request, type, path):
     if path:
-        path = path.strip('/')    
-    
+        path = path.strip('/')
+
     return HttpResponse(dir_show(type, path))
 
 @staff_member_required
@@ -121,13 +122,15 @@ def walktree(top=".", depthfirst=True):
                 yield newtop, children
     if depthfirst:
         yield top, names
-    
+
+
+class PathItem(object):
+    def __init__(self, path, add_path):
+        self.path = path
+        self.add_path = add_path
+
+
 def dir_path(type, path=""):
-    
-    class PathItem(object ):
-        def __init__(self, path, add_path):
-            self.path = path
-            self.add_path = add_path 
     openfn = 'folder_open_image'
     if type != "images":
         openfn = 'folder_open_document'
@@ -140,11 +143,12 @@ def dir_path(type, path=""):
         res_path.append(PathItem(p, add_path)) 
         
     context = Context(
-                      {'openfn' : 'img/%s.png' % openfn,
-                       'type' : type,
+                      {'openfn': 'img/%s.png' % openfn,
+                       'type': type,
                        'res_path':res_path
                        })
-    return render_to_string('path.html', context_instance = context)
+    return render_to_string('path.html', context_instance=context)
+
 
 def dir_structure(type, top='', current_dir='', level=0):
     if top == '/':
@@ -209,7 +213,6 @@ class FileInfo(object):
         self.rel_path = rel_path
 
 
-@staff_member_required
 def dir_show(type, top):
 
     fdir = join(FULL_STORAGE_ROOT, top)
