@@ -22,6 +22,8 @@ from django.template.loader import render_to_string
 from django.utils.encoding import iri_to_uri
 from django.views.decorators.csrf import csrf_exempt
 
+logger = logging.getLogger(__name__)
+
 # STORAGE_ROOT is relative to MEDIA_ROOT
 try:
     STORAGE_ROOT = settings.STORAGE_ROOT
@@ -213,9 +215,13 @@ class FileInfo(object):
 
 def dir_show(type, top):
 
+    logger.debug(u'start dir_show for `%s`' % top)
     fdir = join(FULL_STORAGE_ROOT, top)
+
     thumbs_db = Thumbs(top)
     thumbs_db_changed = False
+
+    logger.debug(u'dir_show load files')
     files = thumbs_db.load()
 
     objects = []
@@ -224,6 +230,8 @@ def dir_show(type, top):
         fullname = join(fdir, f_name)
         if not os.path.isfile(fullname):
             continue
+
+        logger.debug(u'load metainfo for `%s`' % fullname)
 
         if f_name in files:
             info = files[f_name]
@@ -234,6 +242,8 @@ def dir_show(type, top):
             fwidth = info['width']
             fheight = info['height']
         else:
+            logger.debug(u'metainfo for `%s` not found, load it' % fullname)
+
             f = open(fullname, 'rb')
             try:
                 img = Image.open(f)
@@ -278,8 +288,10 @@ def dir_show(type, top):
                                 ))
 
     if thumbs_db_changed:
+        logger.debug(u'dumping new files')
         thumbs_db.dump(files)
 
+    logger.debug(u'render template')
     context = Context({'objects':objects,
                       })
     return render_to_string('show_dir.html', context_instance=context)
