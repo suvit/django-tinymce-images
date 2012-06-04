@@ -537,7 +537,7 @@ $(function(){
             $('#fileName').text(file.attr('fname'));
             $('#footExt').text(file.attr('ext'));
             $('#footDate').text(file.attr('date'));
-            $('#footLink a').text(file.attr('fname').substr(0,16)).attr('href',file.attr('linkto'));
+            $('#footLink a').text(file.attr('fname').substr(0,16)).attr('href',file.attr('abs_url'));
             $('#footSize').text(intToMb(file.attr('fsize')));
             $('#footDim').text(file.attr('fwidth')+'x'+file.attr('fheight'));
             
