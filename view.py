@@ -324,61 +324,55 @@ def del_file(request):
 @staff_member_required
 @csrf_exempt
 def upload_file(request):
-    try:
-        path = request.POST.get('path')
-        path = path.strip('/')
-        top = path
-        if not isdir(join(FULL_STORAGE_ROOT, top, THUMBS_SUBDIR)):
-            os.mkdir(join(FULL_STORAGE_ROOT, top, THUMBS_SUBDIR))
+    path = request.POST.get('path')
+    path = path.strip('/')
+    top = path
+    if not isdir(join(FULL_STORAGE_ROOT, top, THUMBS_SUBDIR)):
+        os.mkdir(join(FULL_STORAGE_ROOT, top, THUMBS_SUBDIR))
 
-        files = Thumbs(top).load()
+    files = Thumbs(top).load()
 
-        if (len(request.FILES)):
-            for file in request.FILES.items():
-                if -1 == file[1].name.rfind('.'):
-                    return HttpResponseForbidden()
+    for file in request.FILES.items():
+        filename = file[1].name
+        if '.' not in filename:
+            return HttpResponseForbidden()
 
-                (name, ext) = file[1].name.rsplit('.', 2)
-                if not ext.lower() in ALLOWED_IMAGES:
-                    return HttpResponseForbidden()
+        (name, ext) = filename.rsplit('.', 2)
+        if not ext.lower() in ALLOWED_IMAGES:
+            return HttpResponseForbidden()
 
-                file_body = file[1].read()
+        filelink = join(top, filename)
+        filepath = join(FULL_STORAGE_ROOT, top, filename)
 
-                filename = name + '.' + ext
-                filelink = join(top,filename)
-                filepath = join(FULL_STORAGE_ROOT, top, filename)
+        file_body = file[1].read()
+        img_file = open(filepath, 'wb')
+        try:
+            img_file.write(file_body)
+        finally:
+            img_file.close()
 
-                img_file = open(filepath, 'wb')
-                try:
-                    img_file.write(file_body)
-                finally:
-                    img_file.close()
+        img_file = open(filepath, 'rb')
+        try:
+            image = Image.open(img_file)
+        finally:
+            img_file.close()
 
-                img_file = open(filepath, 'rb')
-                try:
-                    image = Image.open(img_file)
-                finally:
-                    img_file.close()
+        xsize, ysize = image.size
 
-                xsize, ysize = image.size
+        files[filename] = {
+            'filename': filename,
+            'name':     name,
+            'ext':      ext,
+            'path':     top,
+            'link':     filelink,
+            'size':     file[1].size,
+            'date':     os.path.getmtime(filepath),
+            'width':    xsize,
+            'height':   ysize,
+        }
 
-                files[filename] = {
-                    'filename': filename,
-                    'name':     name,
-                    'ext':      ext,
-                    'path':     top,
-                    'link':     filelink,
-                    'size':     file[1].size,
-                    'date':     os.path.getmtime(filepath),
-                    'width':    xsize,
-                    'height':   ysize,
-                }
+    Thumbs(top).dump(files)
 
-        Thumbs(top).dump(files)
-    except Exception, e:
-        import traceback
-        traceback.print_exc()
-        raise
     return HttpResponse('Ok.')
 
 
