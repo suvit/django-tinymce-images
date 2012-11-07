@@ -337,7 +337,8 @@ def upload_file(request):
         if '.' not in filename:
             return HttpResponseForbidden()
 
-        (name, ext) = filename.rsplit('.', 2)
+        name, ext = splitext(filename)
+        ext = ext.strip('.')
         if not ext.lower() in ALLOWED_IMAGES:
             return HttpResponseForbidden()
 
