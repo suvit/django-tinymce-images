@@ -4,7 +4,7 @@ from django.views.generic.base import TemplateView
 
 url_prefix = 'tinymce/images/'
 
-urlpatterns = patterns('tinymce_images.view',
+urlpatterns = patterns('tinymce_images.views',
     #url(r'download/$', tiny_views.download),
     #url(r'^$', tiny_views.all),
     url(r'^new_folder/(?P<name>\w+)/(?P<path>[a-zA-Z0-9_/]*)$',
