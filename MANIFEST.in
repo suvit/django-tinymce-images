@@ -1,0 +1,3 @@
+recursive-include tinymce_images/templates *
+recursive-include tinymce_images/static *
+include README.md
