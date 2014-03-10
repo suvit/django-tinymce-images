@@ -1,8 +1,8 @@
 # -*- encoding: utf-8 -*-
 try:
-    from django.conf.urls.defaults import patterns, url, include
-except ImportError:
     from django.conf.urls import patterns, url, include
+except ImportError:
+    from django.conf.urls.defaults import patterns, url, include
 from django.views.generic.base import TemplateView
 
 url_prefix = 'tinymce/images/'
