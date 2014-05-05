@@ -11,7 +11,7 @@
 			// Register commands
 			ed.addCommand('mceImages', function() {
 				ed.windowManager.open({
-					file : url + '/images.html',
+					file : url + '/images.html?ver20140505',
 					width : 700 + parseInt(ed.getLang('images.delta_width', 0)),
 					height : 550 + parseInt(ed.getLang('images.delta_height', 0)),
 					inline: true,
