@@ -13,16 +13,11 @@ setup(
     name='django-tinymce-images',
     version=VERSION,
     description='Plugin to tinymce, Image browser in media folder. With connector to django',
-    long_description=file(
-        os.path.join(
-            os.path.dirname(__file__),
-            'README.md'
-        )
-    ).read(),
+    long_description=open('README.md').read(),
     author='Victor Safronovich',
     author_email='vsafronovich@gmail.com',
     license='MIT',
-    url='http://github.com/suvit/django-tinymce-images',
+    url='https://github.com/suvit/django-tinymce-images',
     zip_safe=False,
     packages=find_packages(exclude=['docs', 'examples', 'tests']),
     install_requires=['django-tinymce'],
